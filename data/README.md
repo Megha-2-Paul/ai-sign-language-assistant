@@ -1,24 +1,27 @@
-# Dataset directory
+# Dataset Directory
 
-This directory documents the expected local dataset layout. Large raw and processed datasets should not be committed to Git.
-
-Recommended local structure:
+Use this directory for local datasets and generated features.
 
 ```text
 data/
-├── raw/
-│   ├── train/
-│   ├── validation/
-│   └── test/
-├── processed/
-│   └── landmarks.csv
-└── README.md
+├── raw/         # Original downloaded/collected samples
+├── processed/   # Cleaned/resized samples when required
+└── landmarks/   # Generated landmark feature files
 ```
 
-## Dataset principles
+Large datasets and generated artifacts should remain local and are excluded from Git where appropriate.
 
-- Record or use samples from multiple signers where possible.
-- Keep labels explicit and consistent.
-- Keep train/validation/test separation at the signer level when signer identity is available.
-- Record dataset source, license, vocabulary, and preprocessing assumptions.
-- Do not commit large datasets or personally identifying information.
+## Dataset record
+
+For every dataset, document:
+
+- Dataset name and source
+- License and permitted use
+- Citation/attribution requirements
+- Classes/vocabulary
+- Number of samples
+- Signer metadata, if available
+- Preprocessing performed
+- Train/validation/test split
+
+Do not store private, restricted, or personally identifying data in this repository.
