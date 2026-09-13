@@ -1,10 +1,25 @@
 # Dataset Strategy
 
-## Initial scope
+## Objective
 
-The first model will recognize a deliberately limited set of isolated/static signs or gestures. The final vocabulary will be selected after comparing available datasets and licensing, sample quality, signer diversity, and practical recognition difficulty.
+The first model will recognize a limited vocabulary of isolated/static hand signs. The project will not claim unrestricted sign-language translation.
 
-The project will not claim to translate unrestricted sign language. Full sign languages also depend on movement, facial expression, body posture, context, and language-specific grammar.
+## MVP dataset
+
+The initial benchmark is the ASL Alphabet dataset because it provides a practical starting point for building and validating the complete pipeline.
+
+Target classes:
+
+- A-Z
+- SPACE
+- DELETE
+- NOTHING
+
+The dataset is large enough to establish a meaningful baseline while keeping the first model tractable.
+
+## Advanced dataset
+
+ASL Citizen is a candidate for a later isolated-sign recognition version. It is substantially larger and more challenging, with many sign classes and multiple signers. Its licensing and commercial-use terms must be reviewed before any use beyond research/portfolio experimentation.
 
 ## Sample requirements
 
