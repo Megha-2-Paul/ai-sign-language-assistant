@@ -1,0 +1,14 @@
+# Core computer vision
+opencv-python
+mediapipe
+
+# Data and machine learning
+numpy
+pandas
+scikit-learn
+
+# Application UI
+streamlit
+
+# Optional text-to-speech (enabled in a later milestone)
+pyttsx3
