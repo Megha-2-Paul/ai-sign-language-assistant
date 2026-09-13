@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "dataset": "ASL Alphabet",
+  "task": "isolated_static_sign_recognition",
+  "labels": [
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+    "U", "V", "W", "X", "Y", "Z",
+    "SPACE", "DELETE", "NOTHING"
+  ]
+}
