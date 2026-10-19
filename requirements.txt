@@ -1,14 +1,9 @@
-# Core computer vision
-opencv-python
-mediapipe
-
-# Data and machine learning
-numpy
-pandas
-scikit-learn
-
-# Application UI
-streamlit
-
-# Optional text-to-speech (enabled in a later milestone)
-pyttsx3
+# Python 3.11 dependency set; NumPy <2 is required by this MediaPipe wheel.
+numpy==1.26.4
+opencv-python==4.10.0.84
+mediapipe==0.10.21
+pandas>=2.2,<3
+scikit-learn>=1.5,<2
+joblib>=1.4,<2
+Pillow>=10,<13
+streamlit>=1.40,<2

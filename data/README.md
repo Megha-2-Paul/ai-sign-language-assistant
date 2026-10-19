@@ -1,27 +1,12 @@
-# Dataset Directory
+# Dataset setup
 
-Use this directory for local datasets and generated features.
+Datasets and trained models are intentionally not committed. Download an image dataset whose license permits your intended use and review its attribution and terms first.
 
-```text
-data/
-├── raw/         # Original downloaded/collected samples
-├── processed/   # Cleaned/resized samples when required
-└── landmarks/   # Generated landmark feature files
+Expected layout: one directory per isolated sign label, e.g. `data/raw/asl_alphabet_train/A/*.jpg`, `.../B/*.jpg`, and so on. The Kaggle ASL Alphabet dataset is a common learning benchmark, but check its current terms and ensure folder labels match your target vocabulary.
+
+Run from the repository root:
+```bash
+python scripts/collect_landmarks.py data/raw/asl_alphabet_train data/processed/landmarks.csv
+python scripts/train_model.py
 ```
-
-Large datasets and generated artifacts should remain local and are excluded from Git where appropriate.
-
-## Dataset record
-
-For every dataset, document:
-
-- Dataset name and source
-- License and permitted use
-- Citation/attribution requirements
-- Classes/vocabulary
-- Number of samples
-- Signer metadata, if available
-- Preprocessing performed
-- Train/validation/test split
-
-Do not store private, restricted, or personally identifying data in this repository.
+Every detected hand yields one row. Images without detectable hands are skipped. Inspect class counts and data quality before training. Keep personal photos, identifying information, and restricted datasets out of Git; data folders are git-ignored.

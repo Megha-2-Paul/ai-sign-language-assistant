@@ -4,17 +4,13 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
-
 # Virtual environments
 .venv/
 venv/
 env/
-
 # Jupyter
 .ipynb_checkpoints/
-
-# Local datasets and model artifacts
-# Keep documentation/instructions in Git; avoid committing large generated files.
+# Local datasets and generated model artifacts
 data/raw/
 data/processed/
 models/*.pkl
@@ -22,17 +18,15 @@ models/*.joblib
 models/*.h5
 models/*.keras
 models/*.onnx
-
+models/evaluation.json
 # Local configuration and secrets
 .env
 .env.*
 !.env.example
-
 # OS / IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-
 # Streamlit
 .streamlit/secrets.toml
