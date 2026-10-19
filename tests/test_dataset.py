@@ -28,6 +28,7 @@ def test_empty_data_rejected(tmp_path):
 
 def test_nonnumeric_feature_rejected(tmp_path):
     data = frame()
+    data["f5"] = data["f5"].astype(object)
     data.loc[0, "f5"] = "bad"
     with pytest.raises(ValueError, match="non-numeric"):
         load_landmark_csv(write_csv(tmp_path, data))
