@@ -1,61 +1,68 @@
-# AI Sign Language Recognition & Speech Assistant
+# AI Sign Language Assistant
 
-A portfolio-grade computer vision project that recognizes a defined vocabulary of sign-language gestures and converts recognized signs into text, with optional text-to-speech output.
+A portfolio-focused Python computer-vision application for **isolated static sign recognition** from uploaded images. It uses MediaPipe hand landmarks, a scikit-learn classifier, and Streamlit with confidence estimates, phrase building, session history, and browser speech.
 
-## Project goal
+> **Scope:** This is a limited-vocabulary recognition assistant, not a continuous sign-language translator. It does not understand grammar, facial expression, or movement-based signs. Predictions may be wrong and must not be treated as authoritative interpretation.
 
-Build a working, explainable AI application suitable for demonstrating computer vision, machine learning, and real-time/image-based inference in a university-style project and professional portfolio.
+## Features
 
-> **Scope note:** The initial version will recognize a limited, explicitly documented vocabulary. It is not intended to claim unrestricted translation of all sign languages.
+- Image-upload inference; the primary app does not open a webcam.
+- MediaPipe extraction of 21 hand landmarks and consistent 63-feature normalization.
+- Reproducible Random Forest training and held-out evaluation using a predefined train/test split when supplied.
+- Dataset validation; split/capture metadata is excluded from model features.
+- Deterministic optional per-class image sampling and label exclusion for practical pipeline runs.
+- Predictions, estimated confidence, phrase builder, undo/clear, session-only history, browser text-to-speech.
+- Evaluation JSON with accuracy, class counts, per-class metrics, confusion matrix, and evaluation method.
+- Automated tests and GitHub Actions CI.
 
-## Planned capabilities
+## Quick start (Python 3.11)
 
-- Hand detection and landmark extraction
-- Sign/gesture classification
-- Image-upload recognition as the primary MVP input
-- Optional live-camera recognition
-- Confidence score for predictions
-- Recognized-sign history and phrase construction
-- Text-to-speech output
-- Streamlit-based user interface
-- Model evaluation and documented experiments
+Windows PowerShell:
 
-## Planned technology stack
-
-- Python
-- OpenCV
-- MediaPipe
-- scikit-learn / deep learning as appropriate
-- Streamlit
-- Text-to-speech library
-
-## Project structure
-
-```text
-ai-sign-language-assistant/
-├── app/              # Streamlit application
-├── data/              # Dataset documentation and local data instructions
-├── models/            # Trained model artifacts (large files excluded from Git)
-├── notebooks/         # Experiments and model development
-├── src/               # Reusable application and ML code
-├── tests/             # Automated tests
-├── README.md
-└── requirements.txt
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
 ```
 
-## Development roadmap
+macOS/Linux: create a virtual environment with `python3.11 -m venv .venv`, activate it, and run `python -m pip install -r requirements-dev.txt`.
 
-1. Environment and dependency setup
-2. Hand landmark detection prototype
-3. Dataset collection/preparation
-4. Feature extraction and preprocessing
-5. Baseline model training
-6. Model evaluation and improvement
-7. Recognition application
-8. Text-to-speech and phrase construction
-9. UI polish and testing
-10. Portfolio documentation and demo
+## Dataset and training
+
+No dataset or trained model is committed. Review source terms, licence, and attribution before downloading. See [dataset setup](data/README.md).
+
+Expected layout when the dataset has an official split: `data/raw/sign_dataset/{train,test}/<LABEL>/*.jpg`. For an unsplit dataset, use `data/raw/sign_dataset/<LABEL>/*.jpg`.
+
+```bash
+python scripts/collect_landmarks.py data/raw/sign_dataset data/processed/landmarks.csv --max-images-per-class 100 --random-state 42 --exclude-labels 0
+python scripts/train_model.py --random-state 42 --test-size 0.2
+```
+
+The collector records predefined split metadata when present and supports deterministic sampling per label/split. It can exclude labels that are incompatible with per-hand classification (for example, ASL-HG's two-handed `0` sign). The trainer uses a supplied split without re-splitting; otherwise it uses a stratified random split. Both choices are recorded in `models/evaluation.json`. Remove the image cap to process all images. The training command saves `models/sign_classifier.joblib` and `models/evaluation.json`.
+
+## Run the app
+
+After training, run `streamlit run app/streamlit_app.py`. Upload a clear image containing one or two visible hands, add predicted labels to the phrase, undo or clear labels, inspect recent session history, or use browser speech synthesis. If the model artifact is missing, the app displays commands to create it.
+
+The diagnostic landmark-only interface remains available with `streamlit run app/landmark_demo.py`.
+
+## Tests
+
+Run `python -m pytest -q`. GitHub Actions uses the same test suite on Python 3.11 for pushes and pull requests.
+
+## Project layout
+
+- `src/vision/`: MediaPipe hand detection.
+- `src/preprocessing/`: landmark normalization and features.
+- `src/data/`: dataset loading and validation.
+- `src/models/`: training, evaluation, serialization.
+- `src/inference/`: model loading and prediction.
+- `scripts/`: data collection and training CLIs.
+- `app/`: recognition and diagnostic Streamlit interfaces.
+- `tests/`: regression tests.
+- `docs/model-evaluation.md`: evaluation interpretation and limitations.
 
 ## Responsible use
 
-Recognition accuracy depends on the selected vocabulary, dataset, lighting, camera/image quality, signer variation, and other factors. Results should be treated as model predictions rather than authoritative interpretation.
+Performance depends on dataset quality, label coverage, lighting, image quality, hand visibility, and signer variation. Do not report accuracy until training and evaluation have run on a documented dataset. Prefer signer-independent evaluation where signer metadata exists. Dynamic signs and phrase-level translation are outside this baseline's scope.
