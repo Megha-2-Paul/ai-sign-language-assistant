@@ -10,7 +10,7 @@ A portfolio-focused Python computer-vision application for **isolated static sig
 - MediaPipe extraction of 21 hand landmarks and consistent 63-feature normalization.
 - Reproducible Random Forest training and held-out evaluation using a predefined train/test split when supplied.
 - Dataset validation; split/capture metadata is excluded from model features.
-- Deterministic optional per-class image sampling for practical pipeline runs.
+- Deterministic optional per-class image sampling and label exclusion for practical pipeline runs.
 - Predictions, estimated confidence, phrase builder, undo/clear, session-only history, browser text-to-speech.
 - Evaluation JSON with accuracy, class counts, per-class metrics, confusion matrix, and evaluation method.
 - Automated tests and GitHub Actions CI.
@@ -35,11 +35,11 @@ No dataset or trained model is committed. Review source terms, licence, and attr
 Expected layout when the dataset has an official split: `data/raw/sign_dataset/{train,test}/<LABEL>/*.jpg`. For an unsplit dataset, use `data/raw/sign_dataset/<LABEL>/*.jpg`.
 
 ```bash
-python scripts/collect_landmarks.py data/raw/sign_dataset data/processed/landmarks.csv --max-images-per-class 100 --random-state 42
+python scripts/collect_landmarks.py data/raw/sign_dataset data/processed/landmarks.csv --max-images-per-class 100 --random-state 42 --exclude-labels 0
 python scripts/train_model.py --random-state 42 --test-size 0.2
 ```
 
-The collector records predefined split metadata when present and supports deterministic sampling per label/split. The trainer uses that split without re-splitting; otherwise it uses a stratified random split. Both choices are recorded in `models/evaluation.json`. Remove the image cap to process all images. The training command saves `models/sign_classifier.joblib` and `models/evaluation.json`.
+The collector records predefined split metadata when present and supports deterministic sampling per label/split. It can exclude labels that are incompatible with per-hand classification (for example, ASL-HG's two-handed `0` sign). The trainer uses a supplied split without re-splitting; otherwise it uses a stratified random split. Both choices are recorded in `models/evaluation.json`. Remove the image cap to process all images. The training command saves `models/sign_classifier.joblib` and `models/evaluation.json`.
 
 ## Run the app
 

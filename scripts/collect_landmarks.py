@@ -47,10 +47,13 @@ def select_image_records(
     records: list[tuple[Path, str, str]],
     max_images_per_class: int | None = None,
     random_state: int = 42,
+    exclude_labels: set[str] | None = None,
 ) -> list[tuple[Path, str, str]]:
-    """Select a reproducible maximum per label and predefined split."""
+    """Filter labels and select a reproducible maximum per label and split."""
     if max_images_per_class is not None and max_images_per_class < 1:
         raise ValueError("max_images_per_class must be positive")
+    excluded = {label.strip() for label in (exclude_labels or set())}
+    records = [record for record in records if record[1] not in excluded]
     if max_images_per_class is None:
         return sorted(records, key=lambda item: str(item[0]))
     grouped: dict[tuple[str, str], list[tuple[Path, str, str]]] = defaultdict(list)
@@ -72,6 +75,7 @@ def collect(
     *,
     max_images_per_class: int | None = None,
     random_state: int = 42,
+    exclude_labels: set[str] | None = None,
 ) -> int:
     """Extract one sample per detected hand and return the number of samples."""
     input_dir, output_csv = Path(input_dir), Path(output_csv)
@@ -80,7 +84,15 @@ def collect(
     records = image_records(input_dir)
     if not records:
         raise ValueError(f"No supported images found under {input_dir}")
-    records = select_image_records(records, max_images_per_class, random_state)
+    excluded = {label.strip() for label in (exclude_labels or set())}
+    records = select_image_records(
+        records,
+        max_images_per_class=max_images_per_class,
+        random_state=random_state,
+        exclude_labels=excluded,
+    )
+    if not records:
+        raise ValueError("No images remain after excluding the requested labels")
     rows = []
     processed_images = 0
     with HandDetector(static_image_mode=True, max_num_hands=2) as detector:
@@ -109,6 +121,8 @@ def collect(
     print(f"Detected hands by label: {pd.Series([row['label'] for row in rows]).value_counts().sort_index().to_dict()}")
     if any(row["split"] for row in rows):
         print(f"Detected hands by split: {pd.Series([row['split'] for row in rows]).value_counts().to_dict()}")
+    if excluded:
+        print(f"Excluded labels: {', '.join(sorted(excluded))}")
     return len(rows)
 
 
@@ -118,6 +132,7 @@ def main() -> None:
     parser.add_argument("output_csv", type=Path, help="Destination CSV, e.g. data/processed/landmarks.csv")
     parser.add_argument("--max-images-per-class", type=int, default=None, help="Optional deterministic cap per label and split")
     parser.add_argument("--random-state", type=int, default=42, help="Seed used when sampling images")
+    parser.add_argument("--exclude-labels", nargs="*", default=[], help="Optional labels to omit (e.g. 0 for a two-handed sign)")
     args = parser.parse_args()
     try:
         count = collect(
@@ -125,6 +140,7 @@ def main() -> None:
             args.output_csv,
             max_images_per_class=args.max_images_per_class,
             random_state=args.random_state,
+            exclude_labels=set(args.exclude_labels),
         )
     except (FileNotFoundError, ValueError) as exc:
         parser.error(str(exc))

@@ -15,6 +15,9 @@ def records(tmp_path):
     ] + [
         (tmp_path / "train" / "B" / f"b{i}.jpg", "B", "train")
         for i in range(3)
+    ] + [
+        (tmp_path / "train" / "0" / f"zero{i}.jpg", "0", "train")
+        for i in range(2)
     ]
 
 
@@ -23,7 +26,7 @@ def test_sampling_is_deterministic_and_per_class_and_split(tmp_path):
     first = select_image_records(source, max_images_per_class=2, random_state=12)
     second = select_image_records(source, max_images_per_class=2, random_state=12)
     assert [item[0] for item in first] == [item[0] for item in second]
-    assert len(first) == 6
+    assert len(first) == 8
     assert sum(label == "A" and split == "train" for _, label, split in first) == 2
     assert sum(label == "A" and split == "test" for _, label, split in first) == 2
     assert sum(label == "B" and split == "train" for _, label, split in first) == 2
@@ -32,6 +35,12 @@ def test_sampling_is_deterministic_and_per_class_and_split(tmp_path):
 def test_sampling_rejects_nonpositive_limit(tmp_path):
     with pytest.raises(ValueError, match="must be positive"):
         select_image_records(records(tmp_path), max_images_per_class=0)
+
+
+def test_excluded_labels_are_filtered_before_sampling(tmp_path):
+    selected = select_image_records(records(tmp_path), max_images_per_class=2, exclude_labels={"0"})
+    assert selected
+    assert all(label != "0" for _, label, _ in selected)
 
 
 def test_unsplit_records_are_not_split_implicitly(tmp_path):
