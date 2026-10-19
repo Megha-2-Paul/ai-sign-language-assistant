@@ -8,35 +8,38 @@ A portfolio-focused Python computer-vision application for **isolated static sig
 
 - Image-upload inference; the primary app does not open a webcam.
 - MediaPipe extraction of 21 hand landmarks and consistent 63-feature normalization.
-- Reproducible Random Forest training and stratified held-out evaluation.
-- Dataset validation; capture metadata is excluded from model features.
+- Reproducible Random Forest training and held-out evaluation using a predefined train/test split when supplied.
+- Dataset validation; split/capture metadata is excluded from model features.
+- Deterministic optional per-class image sampling for practical pipeline runs.
 - Predictions, estimated confidence, phrase builder, undo/clear, session-only history, browser text-to-speech.
-- Evaluation JSON with accuracy, class counts, per-class metrics, and confusion matrix.
+- Evaluation JSON with accuracy, class counts, per-class metrics, confusion matrix, and evaluation method.
 - Automated tests and GitHub Actions CI.
 
 ## Quick start (Python 3.11)
 
 Windows PowerShell:
+
 ```powershell
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
 ```
+
 macOS/Linux: create a virtual environment with `python3.11 -m venv .venv`, activate it, and run `python -m pip install -r requirements-dev.txt`.
 
 ## Dataset and training
 
-No dataset or trained model is committed. Download a dataset that permits your intended use and review its license and attribution requirements. See [dataset setup](data/README.md).
+No dataset or trained model is committed. Review source terms, licence, and attribution before downloading. See [dataset setup](data/README.md).
 
-Expected layout: `data/raw/asl_alphabet_train/<LABEL>/*.jpg`.
+Expected layout when the dataset has an official split: `data/raw/sign_dataset/{train,test}/<LABEL>/*.jpg`. For an unsplit dataset, use `data/raw/sign_dataset/<LABEL>/*.jpg`.
 
 ```bash
-python scripts/collect_landmarks.py data/raw/asl_alphabet_train data/processed/landmarks.csv
+python scripts/collect_landmarks.py data/raw/sign_dataset data/processed/landmarks.csv --max-images-per-class 100 --random-state 42
 python scripts/train_model.py --random-state 42 --test-size 0.2
 ```
 
-The first command extracts landmarks. The second saves `models/sign_classifier.joblib` and `models/evaluation.json`. Training fails clearly when data is missing, malformed, too small, or lacks enough samples per class.
+The collector records predefined split metadata when present and supports deterministic sampling per label/split. The trainer uses that split without re-splitting; otherwise it uses a stratified random split. Both choices are recorded in `models/evaluation.json`. Remove the image cap to process all images. The training command saves `models/sign_classifier.joblib` and `models/evaluation.json`.
 
 ## Run the app
 
@@ -62,4 +65,4 @@ Run `python -m pytest -q`. GitHub Actions uses the same test suite on Python 3.1
 
 ## Responsible use
 
-Performance depends on dataset quality, label coverage, lighting, image quality, hand visibility, and signer variation. Do not report accuracy until training and evaluation have run on a documented dataset. Prefer signer-independent test data when possible. Dynamic signs and phrase-level translation are outside this baseline's scope.
+Performance depends on dataset quality, label coverage, lighting, image quality, hand visibility, and signer variation. Do not report accuracy until training and evaluation have run on a documented dataset. Prefer signer-independent evaluation where signer metadata exists. Dynamic signs and phrase-level translation are outside this baseline's scope.
