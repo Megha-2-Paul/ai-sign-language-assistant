@@ -24,7 +24,7 @@ def test_training_returns_metrics_and_model():
 def test_training_rejects_one_class():
     x, y = sample_data()
     with pytest.raises(ValueError, match="two different"):
-        train_classifier(x, y, y.map(lambda _: "A"))
+        train_classifier(x, y.map(lambda _: "A"))
 
 def test_training_rejects_rare_class():
     x, y = sample_data()
